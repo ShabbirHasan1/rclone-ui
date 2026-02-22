@@ -32,6 +32,36 @@ async function buildMenu() {
         id: 'open',
         text: 'Open',
         action: async () => {
+            if (usePersistedStore.getState().acknowledgements.includes('openShortcut')) {
+                await invoke('show_toolbar')
+                return
+            }
+
+            const result = await message(
+                `You can also open the Toolbar using the default shortcut ${platform() === 'macos' ? 'Command + Shift + /' : 'Control + Shift + /'}.`,
+                {
+                    title: 'Did you know?',
+                    kind: 'info',
+                    buttons: {
+                        ok: 'Good to know',
+                    },
+                }
+            )
+
+            if (result !== 'Good to know' && result !== 'Ok') {
+                return
+            }
+
+            usePersistedStore.setState((prev) => {
+                if (prev.acknowledgements.includes('openShortcut')) {
+                    return prev
+                }
+
+                return {
+                    acknowledgements: [...prev.acknowledgements, 'openShortcut'],
+                }
+            })
+
             await invoke('show_toolbar')
         },
     })
