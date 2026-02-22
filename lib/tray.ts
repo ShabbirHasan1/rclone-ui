@@ -212,11 +212,12 @@ export async function initTray() {
             menu: await buildMenu(),
             icon: await resolveTrayIconForTheme(),
             tooltip: 'Rclone',
-            menuOnLeftClick: true,
+            showMenuOnLeftClick: platform() === 'macos',
             iconAsTemplate: true,
             action: async (event: TrayIconEvent) => {
-                if (event.type === 'Click') {
-                    console.log('[onTrayAction] tray clicked:', event)
+                if (platform() === 'macos') return
+                if (event.type === 'Click' && event.button === 'Left') {
+                    await invoke('show_toolbar')
                 }
             },
         })
