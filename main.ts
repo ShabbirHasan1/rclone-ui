@@ -433,9 +433,13 @@ async function startRclone() {
         return await exit(0)
     }
 
-    const rcloneCommandFn = rclone?.system || rclone?.internal
+    const command = rclone?.system || rclone?.internal
 
-    const command = rcloneCommandFn!
+    if (!command) {
+        console.error('[startRclone] initRclone returned without a runnable command')
+        Sentry.captureException(new Error('initRclone returned without a runnable command.'))
+        return
+    }
 
     command.addListener('close', async (event) => {
         console.log('close', event)
