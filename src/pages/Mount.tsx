@@ -34,6 +34,7 @@ import { startMount } from '../../lib/rclone/api'
 import { RCLONE_CONFIG_DEFAULTS } from '../../lib/rclone/constants'
 import { dialogGetMountPlugin } from '../../lib/rclone/mount'
 import { needsMountPlugin } from '../../lib/rclone/mount'
+import { usePersistedStore } from '../../store/persisted'
 import type { FlagValue } from '../../types/rclone'
 import CommandInfoButton from '../components/CommandInfoButton'
 import CommandsDropdown from '../components/CommandsDropdown'
@@ -127,6 +128,32 @@ export default function Mount() {
             })
 
             return dest
+        },
+        onSuccess: async () => {
+            if (usePersistedStore.getState().acknowledgements.includes('firstMount')) {
+                return
+            }
+
+            await message(
+                'You can open the Toolbar and search for "Mount" to see active mounts and unmount them.',
+                {
+                    title: 'Mount Started',
+                    kind: 'info',
+                    buttons: {
+                        ok: 'Good to know',
+                    },
+                }
+            )
+
+            usePersistedStore.setState((prev) => {
+                if (prev.acknowledgements.includes('firstMount')) {
+                    return prev
+                }
+
+                return {
+                    acknowledgements: [...prev.acknowledgements, 'firstMount'],
+                }
+            })
         },
         onError: async (error) => {
             const needsPlugin = await needsMountPlugin()
