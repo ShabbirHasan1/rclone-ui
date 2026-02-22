@@ -83,6 +83,9 @@ pub async fn open_full_window(
     window.set_zoom(1.0).map_err(|e| e.to_string())?;
     window.show().map_err(|e| e.to_string())?;
     window.set_focus().map_err(|e| e.to_string())?;
+	
+	#[cfg(target_os = "linux")]
+	window.center().map_err(|e| e.to_string())?;
 
     if os != "windows" && os != "macos" {
         window.set_resizable(false).map_err(|e| e.to_string())?;
@@ -160,6 +163,14 @@ pub async fn open_window(
     window.set_zoom(1.0).map_err(|e| e.to_string())?;
     window.show().map_err(|e| e.to_string())?;
     window.set_focus().map_err(|e| e.to_string())?;
+	
+	#[cfg(target_os = "linux")]
+	window
+		.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
+			x: x + final_offset,
+			y: y + final_offset,
+		}))
+		.map_err(|e| e.to_string())?;
 
     Ok(())
 }
@@ -209,6 +220,9 @@ pub async fn open_small_window(
     window.show().map_err(|e| e.to_string())?;
     window.set_focus().map_err(|e| e.to_string())?;
     window.set_always_on_top(true).map_err(|e| e.to_string())?;
+	
+	#[cfg(target_os = "linux")]
+	window.center().map_err(|e| e.to_string())?;
 
     if os != "windows" && os != "macos" {
         window.set_resizable(true).map_err(|e| e.to_string())?;
